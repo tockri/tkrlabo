@@ -5,12 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.BindMode;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,37 +15,16 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Testcontainers
+@Transactional
+@Rollback
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class MeetingRepositoryTest {
 
-    @Container
-    @SuppressWarnings("resource")
-    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
-            .withDatabaseName("tkrlabo")
-            .withUsername("test")
-            .withPassword("test")
-            .withFileSystemBind("tools/mysql/init.d", "/docker-entrypoint-initdb.d", BindMode.READ_ONLY);
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mysql::getJdbcUrl);
-        registry.add("spring.datasource.username", mysql::getUsername);
-        registry.add("spring.datasource.password", mysql::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
-    }
-
     @Autowired
-    private MeetingRepository meetingRepository;
-
-    private static boolean setupDone = false;
+    private MeetingDaoRepository meetingRepository;
 
     @BeforeEach
     void setupTestData() {
-        if (setupDone) {
-            return;
-        }
-        setupDone = true;
         // Meeting 1 with banker 1001 and users 100, 200
         MeetingDao meeting1 = MeetingDao.of(null, "event-1", "Meeting 1", "organizer1", 
                 LocalDateTime.now(), LocalDateTime.now(), null, null);
@@ -96,7 +71,7 @@ class MeetingRepositoryTest {
 
     @Test
     void testFindByBankerId() {
-        List<MeetingDao> meetings = meetingRepository.findByBankerId(1001L);
+        List<MeetingDao> meetings = meetingRepository.findByBankerIdAndFromDate(1001L);
         assertThat(meetings).hasSize(2); // Meeting 1 and Meeting 3
         
         for (MeetingDao meeting : meetings) {

@@ -15,8 +15,7 @@ public class MeetingAttendeeUserDao {
     
     @Column(name = "user_id")
     private Long userId;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "meeting_id")
-    private MeetingDao meeting;
+
+    @Column(name = "meeting_id")
+    private Long meetingId;
 }

@@ -18,8 +18,7 @@ public class MeetingAttendeeBankerDao {
     
     @Column(name = "banker_name")
     private String bankerName;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "meeting_id")
-    private MeetingDao meeting;
+
+    @Column(name = "meeting_id")
+    private Long meetingId;
 }

@@ -19,12 +19,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 @Rollback
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(MeetingRepositoryOnDb.class)
-@Sql("MeetingRepositoryOnDbTest-data.sql")
-class MeetingRepositoryOnDbTest {
+@Import(MeetingRepositoryForBankerOnDb.class)
+@Sql("MeetingRepositoryForBankerOnDbTest-data.sql")
+class MeetingRepositoryForBankerOnDbTest {
 
     @Autowired
-    private MeetingRepositoryOnDb meetingRepositoryOnDb;
+    private MeetingRepositoryForBankerOnDb meetingRepositoryOnDb;
 
     @Nested
     @DisplayName("findByBankerId")
@@ -42,33 +42,45 @@ class MeetingRepositoryOnDbTest {
 
             // Assert
             assertThat(result).hasSize(2); // Meeting1とMeeting2の両方にbanker 1001が参加
-            
+
             // Meeting1の検証
             var meeting1 = result.stream()
-                .filter(m -> m.msEventId().equals("event-1"))
-                .findFirst()
-                .orElseThrow();
+                    .filter(m -> m.msEventId().equals("event-1"))
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(meeting1.id()).isEqualTo(1L);
             assertThat(meeting1.subject()).isEqualTo("Meeting 1");
             assertThat(meeting1.creator()).isEqualTo("creator1");
             assertThat(meeting1.attendeeUsers()).hasSize(1);
             assertThat(meeting1.attendeeBankers()).hasSize(1);
-            
-            var user1 = meeting1.attendeeUsers().get(0);
-            assertThat(user1.userId()).isEqualTo(100L);
-            
-            var banker1 = meeting1.attendeeBankers().get(0);
-            assertThat(banker1.bankerId()).isEqualTo(1001L);
-            assertThat(banker1.bankerName()).isEqualTo("Banker A");
-            
+
+            var m1user1 = meeting1.attendeeUsers().get(0);
+            assertThat(m1user1.userId()).isEqualTo(100L);
+
+            var m1banker1 = meeting1.attendeeBankers().get(0);
+            assertThat(m1banker1.bankerId()).isEqualTo(1001L);
+            assertThat(m1banker1.bankerName()).isEqualTo("Banker A");
+
             // Meeting2の検証
             var meeting2 = result.stream()
-                .filter(m -> m.msEventId().equals("event-2"))
-                .findFirst()
-                .orElseThrow();
+                    .filter(m -> m.msEventId().equals("event-2"))
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(meeting2.id()).isEqualTo(2L);
             assertThat(meeting2.subject()).isEqualTo("Meeting 2");
             assertThat(meeting2.creator()).isEqualTo("creator2");
             assertThat(meeting2.attendeeUsers()).hasSize(2);
             assertThat(meeting2.attendeeBankers()).hasSize(2);
+
+            var m2user1 = meeting2.attendeeUsers().get(0);
+            assertThat(m2user1.userId()).isEqualTo(101L);
+            var m2user2 = meeting2.attendeeUsers().get(1);
+            assertThat(m2user2.userId()).isEqualTo(102L);
+
+            var m2banker1 = meeting2.attendeeBankers().get(0);
+            assertThat(m2banker1.bankerId()).isEqualTo(1001L);
+            var m2banker2 = meeting2.attendeeBankers().get(1);
+            assertThat(m2banker2.bankerId()).isEqualTo(1002L);
         }
 
         @DisplayName("指定した銀行員IDが参加しないミーティングの場合、空のリストが返される")
@@ -97,15 +109,15 @@ class MeetingRepositoryOnDbTest {
 
             // Assert
             assertThat(result).hasSize(1);
-            
+
             var meeting = result.get(0);
             assertThat(meeting.msEventId()).isEqualTo("event-2");
             assertThat(meeting.subject()).isEqualTo("Meeting 2");
-            
+
             // banker 1002が含まれていることを確認
             var bankerIds = meeting.attendeeBankers().stream()
-                .map(b -> b.bankerId())
-                .toList();
+                    .map(b -> b.bankerId())
+                    .toList();
             assertThat(bankerIds).contains(1002L);
         }
     }

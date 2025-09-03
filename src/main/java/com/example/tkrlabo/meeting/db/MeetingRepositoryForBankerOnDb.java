@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.example.tkrlabo.meeting.domain.MeetingRepository;
+import com.example.tkrlabo.meeting.domain.MeetingRepositoryForBanker;
 import com.example.tkrlabo.meeting.domain.entity.Meeting;
 import com.example.tkrlabo.meeting.domain.entity.MeetingInput;
 
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class MeetingRepositoryOnDb implements MeetingRepository {
+public class MeetingRepositoryForBankerOnDb implements MeetingRepositoryForBanker {
     private final MeetingDaoRepository meetingDaoRepository;
     private final MeetingAttendeeBankerDaoRepository meetingAttendeeBankerRepository;
     private final MeetingAttendeeUserDaoRepository meetingAttendeeUserRepository;
@@ -31,9 +31,11 @@ public class MeetingRepositoryOnDb implements MeetingRepository {
     @Override
     public void insert(MeetingInput input) {
         var daoSet = EntityConverter.convertInput(input);
-        var attendeeBankers = daoSet.attendeeBankers();
+        var meeting = daoSet.meeting();
         var attendeeUsers = daoSet.attendeeUsers();
-        var saved = meetingDaoRepository.save(daoSet.meeting());
+        var attendeeBankers = daoSet.attendeeBankers();
+
+        var saved = meetingDaoRepository.save(meeting);
         attendeeUsers.forEach(ud -> ud.setMeetingId(saved.getId()));
         meetingAttendeeUserRepository.saveAll(attendeeUsers);
         attendeeBankers.forEach(ab -> ab.setMeetingId(saved.getId()));

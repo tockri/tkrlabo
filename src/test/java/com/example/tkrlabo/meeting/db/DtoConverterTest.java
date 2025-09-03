@@ -4,16 +4,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.example.tkrlabo.meeting.domain.entity.MeetingAttendeeBankerInput;
-import com.example.tkrlabo.meeting.domain.entity.MeetingAttendeeUserInput;
-import com.example.tkrlabo.meeting.domain.entity.MeetingInput;
+import com.example.tkrlabo.meeting.domain.dto.MeetingAttendeeBankerInput;
+import com.example.tkrlabo.meeting.domain.dto.MeetingAttendeeUserInput;
+import com.example.tkrlabo.meeting.domain.dto.MeetingInput;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EntityConverterTest {
+class DtoConverterTest {
 
     @Nested
     @DisplayName("convertInput")
@@ -38,7 +38,7 @@ class EntityConverterTest {
             var beforeTime = LocalDateTime.now().minusSeconds(1);
 
             // Act
-            var result = EntityConverter.convertInput(meetingInput);
+            var result = DtoConverter.convertInput(meetingInput);
 
             // Assert
             var afterTime = LocalDateTime.now().plusSeconds(1);
@@ -97,7 +97,7 @@ class EntityConverterTest {
             var beforeTime = LocalDateTime.now().minusSeconds(1);
 
             // Act
-            var result = EntityConverter.convertInput(meetingInput);
+            var result = DtoConverter.convertInput(meetingInput);
 
             // Assert
             var afterTime = LocalDateTime.now().plusSeconds(1);
@@ -129,7 +129,7 @@ class EntityConverterTest {
                     List.of());
 
             // Act
-            var result = EntityConverter.convertInput(meetingInput);
+            var result = DtoConverter.convertInput(meetingInput);
 
             // Assert
             var meetingDao = result.meeting();
@@ -160,7 +160,7 @@ class EntityConverterTest {
                     List.of(bankerInput1, bankerInput2));
 
             // Act
-            var result = EntityConverter.convertInput(meetingInput);
+            var result = DtoConverter.convertInput(meetingInput);
 
             // Assert
             var meetingDao = result.meeting();

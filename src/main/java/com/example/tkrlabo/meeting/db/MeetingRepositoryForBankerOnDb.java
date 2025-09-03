@@ -6,8 +6,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.example.tkrlabo.meeting.domain.MeetingRepositoryForBanker;
+import com.example.tkrlabo.meeting.domain.dto.MeetingInput;
 import com.example.tkrlabo.meeting.domain.entity.Meeting;
-import com.example.tkrlabo.meeting.domain.entity.MeetingInput;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +30,7 @@ public class MeetingRepositoryForBankerOnDb implements MeetingRepositoryForBanke
 
     @Override
     public void insert(MeetingInput input) {
-        var daoSet = EntityConverter.convertInput(input);
+        var daoSet = DtoConverter.convertInput(input);
         var meeting = daoSet.meeting();
         var attendeeUsers = daoSet.attendeeUsers();
         var attendeeBankers = daoSet.attendeeBankers();

@@ -1,4 +1,4 @@
-package com.example.tkrlabo.meeting.domain.entity;
+package com.example.tkrlabo.meeting.domain.dto;
 
 import org.springframework.lang.NonNull;
 

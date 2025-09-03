@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 interface MeetingAttendeeUserDaoRepository extends CrudRepository<MeetingAttendeeUserDao, Long> {
-    @Query("SELECT au FROM MeetingAttendeeUserDao au WHERE au.meeting.id IN :meetingIds")
+    @Query("SELECT au FROM MeetingAttendeeUserDao au WHERE au.meetingId IN :meetingIds")
     List<MeetingAttendeeUserDao> findByMeetingIds(Collection<Long> meetingIds);
 }

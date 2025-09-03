@@ -3,12 +3,14 @@ package com.example.tkrlabo.meeting.db;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.tkrlabo.meeting.entity.MeetingAttendeeBankerInput;
-import com.example.tkrlabo.meeting.entity.MeetingAttendeeUserInput;
-import com.example.tkrlabo.meeting.entity.MeetingInput;
+import com.example.tkrlabo.meeting.domain.entity.MeetingAttendeeBankerInput;
+import com.example.tkrlabo.meeting.domain.entity.MeetingAttendeeUserInput;
+import com.example.tkrlabo.meeting.domain.entity.MeetingInput;
 
 final class EntityConverter {
-    public record DaoSet(MeetingDao meeting, List<MeetingAttendeeUserDao> attendeeUsers, List<MeetingAttendeeBankerDao> attendeeBankers) {}
+    public record DaoSet(MeetingDao meeting, List<MeetingAttendeeUserDao> attendeeUsers,
+            List<MeetingAttendeeBankerDao> attendeeBankers) {
+    }
 
     private static MeetingAttendeeUserDao convert(MeetingAttendeeUserInput input) {
         return MeetingAttendeeUserDao.of(null, input.userId(), null);

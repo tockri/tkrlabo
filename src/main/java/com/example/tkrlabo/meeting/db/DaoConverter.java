@@ -2,9 +2,9 @@ package com.example.tkrlabo.meeting.db;
 
 import java.util.List;
 
-import com.example.tkrlabo.meeting.entity.Meeting;
-import com.example.tkrlabo.meeting.entity.MeetingAttendeeBanker;
-import com.example.tkrlabo.meeting.entity.MeetingAttendeeUser;
+import com.example.tkrlabo.meeting.domain.entity.Meeting;
+import com.example.tkrlabo.meeting.domain.entity.MeetingAttendeeBanker;
+import com.example.tkrlabo.meeting.domain.entity.MeetingAttendeeUser;
 
 final class DaoConverter {
     private static MeetingAttendeeUser convert(MeetingAttendeeUserDao dao) {
@@ -15,7 +15,8 @@ final class DaoConverter {
         return new MeetingAttendeeBanker(dao.getId(), dao.getBankerId(), dao.getBankerName());
     }
 
-    public static List<Meeting> convertList(List<MeetingDao> meetings, List<MeetingAttendeeBankerDao> attendeeBankers, List<MeetingAttendeeUserDao> attendeeUsers) {
+    public static List<Meeting> convertList(List<MeetingDao> meetings, List<MeetingAttendeeBankerDao> attendeeBankers,
+            List<MeetingAttendeeUserDao> attendeeUsers) {
         return meetings.stream()
                 .map(m -> {
                     var users = attendeeUsers.stream()

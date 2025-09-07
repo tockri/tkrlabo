@@ -4,8 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.example.tkrlabo.meeting.domain.dto.MeetingAttendeeBankerInput;
-import com.example.tkrlabo.meeting.domain.dto.MeetingAttendeeUserInput;
 import com.example.tkrlabo.meeting.domain.dto.MeetingInput;
 
 import java.time.LocalDateTime;
@@ -23,10 +21,10 @@ class DtoConverterTest {
         @Test
         void whenValidInput_shouldConvertToDaoSet() {
             // Arrange
-            var userInput1 = new MeetingAttendeeUserInput(100L);
-            var userInput2 = new MeetingAttendeeUserInput(200L);
-            var bankerInput1 = new MeetingAttendeeBankerInput(1001L, "Banker A");
-            var bankerInput2 = new MeetingAttendeeBankerInput(1002L, "Banker B");
+            var userInput1 = new MeetingInput.AttendeeUser(100L);
+            var userInput2 = new MeetingInput.AttendeeUser(200L);
+            var bankerInput1 = new MeetingInput.AttendeeBanker(1001L, "Banker A");
+            var bankerInput2 = new MeetingInput.AttendeeBanker(1002L, "Banker B");
 
             var meetingInput = new MeetingInput(
                     "event-1",
@@ -118,8 +116,8 @@ class DtoConverterTest {
         @Test
         void whenOnlyUserAttendees_shouldReturnDaoSetWithEmptyBankersList() {
             // Arrange
-            var userInput1 = new MeetingAttendeeUserInput(100L);
-            var userInput2 = new MeetingAttendeeUserInput(200L);
+            var userInput1 = new MeetingInput.AttendeeUser(100L);
+            var userInput2 = new MeetingInput.AttendeeUser(200L);
 
             var meetingInput = new MeetingInput(
                     "event-1",
@@ -149,8 +147,8 @@ class DtoConverterTest {
         @Test
         void whenOnlyBankerAttendees_shouldReturnDaoSetWithEmptyUsersList() {
             // Arrange
-            var bankerInput1 = new MeetingAttendeeBankerInput(1001L, "Banker A");
-            var bankerInput2 = new MeetingAttendeeBankerInput(1002L, "Banker B");
+            var bankerInput1 = new MeetingInput.AttendeeBanker(1001L, "Banker A");
+            var bankerInput2 = new MeetingInput.AttendeeBanker(1002L, "Banker B");
 
             var meetingInput = new MeetingInput(
                     "event-1",

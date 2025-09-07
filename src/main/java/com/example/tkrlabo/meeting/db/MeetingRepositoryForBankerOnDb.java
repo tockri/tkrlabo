@@ -4,14 +4,17 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import com.example.tkrlabo.meeting.domain.MeetingRepositoryForBanker;
 import com.example.tkrlabo.meeting.domain.dto.MeetingInput;
 import com.example.tkrlabo.meeting.domain.entity.Meeting;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Component
+@Validated
 @RequiredArgsConstructor
 public class MeetingRepositoryForBankerOnDb implements MeetingRepositoryForBanker {
     private final MeetingDaoRepository meetingDaoRepository;
@@ -29,7 +32,7 @@ public class MeetingRepositoryForBankerOnDb implements MeetingRepositoryForBanke
     }
 
     @Override
-    public void insert(MeetingInput input) {
+    public void insert(@Valid MeetingInput input) {
         var daoSet = DtoConverter.convertInput(input);
         var meeting = daoSet.meeting();
         var attendeeUsers = daoSet.attendeeUsers();

@@ -6,8 +6,10 @@ import java.util.List;
 import com.example.tkrlabo.meeting.domain.dto.MeetingInput;
 import com.example.tkrlabo.meeting.domain.entity.Meeting;
 
+import jakarta.validation.Valid;
+
 public interface MeetingRepositoryForBanker {
     List<Meeting> findByBankerId(Long bankerId, LocalDate fromDate);
 
-    void insert(MeetingInput input);
+    void insert(@Valid MeetingInput input);
 }

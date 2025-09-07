@@ -3,6 +3,8 @@ package com.example.tkrlabo.meeting.db;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -10,21 +12,41 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import com.example.tkrlabo.meeting.domain.dto.MeetingInput;
+
+import jakarta.validation.ConstraintViolationException;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @Transactional
 @Rollback
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(MeetingRepositoryForBankerOnDb.class)
+@Import({MeetingRepositoryForBankerOnDb.class, org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration.class})
 @Sql("MeetingRepositoryForBankerOnDbTest-data.sql")
+@Testcontainers
 class MeetingRepositoryForBankerOnDbTest {
 
     @Autowired
     private MeetingRepositoryForBankerOnDb meetingRepositoryOnDb;
+
+    @Autowired
+    private MeetingDaoRepository meetingDaoRepository;
+
+    @Autowired
+    private MeetingAttendeeUserDaoRepository userDaoRepository;
+
+    @Autowired
+    private MeetingAttendeeBankerDaoRepository bankerDaoRepository;
 
     @Nested
     @DisplayName("findByBankerId")
@@ -125,7 +147,166 @@ class MeetingRepositoryForBankerOnDbTest {
     @Nested
     @DisplayName("insert")
     class Insert {
+        private MeetingDao findMeetingByEventId(String msEventId) {
+            return StreamSupport.stream(meetingDaoRepository.findAll().spliterator(), false)
+                    .filter(m -> Objects.equals(m.getMsEventId(), msEventId))
+                    .findFirst()
+                    .orElse(null);
+        }
 
-        // テストケースを後で追加
+        @DisplayName("ユーザー・銀行員を含む入力を保存し、関連も保存される")
+        @Test
+        void whenValidInput_shouldInsertMeetingAndAttendees() {
+            // Arrange
+            var input = new MeetingInput(
+                    "event-insert-1",
+                    "Meeting Insert 1",
+                    "creator-i1",
+                    List.of(
+                            new MeetingInput.AttendeeUser(201L),
+                            new MeetingInput.AttendeeUser(202L)
+                    ),
+                    List.of(
+                            new MeetingInput.AttendeeBanker(1101L, "Banker X")
+                    )
+            );
+
+            // Act
+            meetingRepositoryOnDb.insert(input);
+
+            // Assert (raw repositories)
+            var meeting = findMeetingByEventId("event-insert-1");
+            assertThat(meeting).isNotNull();
+            assertThat(meeting.getMsEventId()).isEqualTo("event-insert-1");
+            assertThat(meeting.getSubject()).isEqualTo("Meeting Insert 1");
+            assertThat(meeting.getCreator()).isEqualTo("creator-i1");
+            assertThat(meeting.getId()).isNotNull();
+            assertThat(meeting.getCreatedAt()).isNotNull();
+            assertThat(meeting.getUpdatedAt()).isNotNull();
+
+            var users = userDaoRepository.findByMeetingIds(List.of(meeting.getId()));
+            assertThat(users).hasSize(2);
+            assertThat(users).extracting("userId").containsExactlyInAnyOrder(201L, 202L);
+
+            var bankers = bankerDaoRepository.findByMeetingIds(List.of(meeting.getId()));
+            assertThat(bankers).hasSize(1);
+            assertThat(bankers.get(0).getBankerName()).isEqualTo("Banker X");
+        }
+
+        private record MeetingInputData(String msEventId, String subject, String creator,
+                                        Collection<MeetingInput.AttendeeUser> users,
+                                        Collection<MeetingInput.AttendeeBanker> bankers) {}
+
+        static Collection<MeetingInputData> invalidInputs() {
+            return List.of(
+                // attenddeeUsersが空
+                new MeetingInputData(
+                        "event-invalid-u-empty",
+                        "Meeting Invalid",
+                        "creator",
+                        List.of(),
+                        List.of(new MeetingInput.AttendeeBanker(2001L, "B"))
+                ),
+                // attenddeeBankersが空
+                new MeetingInputData(
+                        "event-invalid-b-empty",
+                        "Meeting Invalid",
+                        "creator",
+                        List.of(new MeetingInput.AttendeeUser(1L)),
+                        List.of()
+                ),
+                // attendeeUsersのuserIdがnull
+                new MeetingInputData(
+                        "event-invalid-userid",
+                        "Meeting Invalid",
+                        "creator",
+                        List.of(new MeetingInput.AttendeeUser(null)),
+                        List.of(new MeetingInput.AttendeeBanker(2001L, "B"))
+                ),
+                // attendeeBankersのbankerIdがnull
+                new MeetingInputData(
+                        "event-invalid-bname",
+                        "Meeting Invalid",
+                        "creator",
+                        List.of(new MeetingInput.AttendeeUser(1L)),
+                        List.of(new MeetingInput.AttendeeBanker(null, "B"))
+                ),
+                // attendeeBankersのbankerNameが空
+                new MeetingInputData(
+                        "event-invalid-bname2",
+                        "Meeting Invalid",
+                        "creator",
+                        List.of(new MeetingInput.AttendeeUser(1L)),
+                        List.of(new MeetingInput.AttendeeBanker(2001L, ""))
+                ),
+                // msEventIdがnull
+                new MeetingInputData(
+                        null,
+                        "Meeting Invalid",
+                        "creator",
+                        List.of(new MeetingInput.AttendeeUser(1L)),
+                        List.of(new MeetingInput.AttendeeBanker(2001L, "B"))
+                ),
+                // msEventIdが空
+                new MeetingInputData(
+                        "",
+                        "Meeting Invalid",
+                        "creator",
+                        List.of(new MeetingInput.AttendeeUser(1L)),
+                        List.of(new MeetingInput.AttendeeBanker(2001L, "B"))
+                ),
+                // subjectがnull
+                new MeetingInputData(
+                        "event-invalid-subject",
+                        null,
+                        "creator",
+                        List.of(new MeetingInput.AttendeeUser(1L)),
+                        List.of(new MeetingInput.AttendeeBanker(2001L, "B"))
+                ),
+                // subjectが空
+                new MeetingInputData(
+                        "event-invalid-subject",
+                        "",
+                        "creator",
+                        List.of(new MeetingInput.AttendeeUser(1L)),
+                        List.of(new MeetingInput.AttendeeBanker(2001L, "B"))
+                ),
+                // creatorがnull
+                new MeetingInputData(
+                        "event-invalid-creator",
+                        "Meeting Invalid",
+                        null,
+                        List.of(new MeetingInput.AttendeeUser(1L)),
+                        List.of(new MeetingInput.AttendeeBanker(2001L, "B"))
+                ),
+                // creatorが空
+                new MeetingInputData(
+                        "event-invalid-creator",
+                        "Meeting Invalid",
+                        "",
+                        List.of(new MeetingInput.AttendeeUser(1L)),
+                        List.of(new MeetingInput.AttendeeBanker(2001L, "B"))
+                )
+        );
     }
+
+        @MethodSource("invalidInputs")
+        @ParameterizedTest
+        @DisplayName("不正な入力の場合、制約違反が発生する")
+        void whenInvalidInput_shouldFailValidation(MeetingInputData data) {
+            // Arrange
+            var input = new MeetingInput(
+                    data.msEventId,
+                    data.subject,
+                    data.creator,
+                    List.copyOf(data.users),
+                    List.copyOf(data.bankers)
+            );
+
+            // Act & Assert
+            assertThatThrownBy(() -> meetingRepositoryOnDb.insert(input))
+                    .isInstanceOf(ConstraintViolationException.class);
+        }
+    }
+
 }

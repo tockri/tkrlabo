@@ -3,8 +3,6 @@ package com.example.tkrlabo.meeting.db;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.tkrlabo.meeting.domain.dto.MeetingAttendeeBankerInput;
-import com.example.tkrlabo.meeting.domain.dto.MeetingAttendeeUserInput;
 import com.example.tkrlabo.meeting.domain.dto.MeetingInput;
 
 final class DtoConverter {
@@ -12,11 +10,11 @@ final class DtoConverter {
             List<MeetingAttendeeBankerDao> attendeeBankers) {
     }
 
-    private static MeetingAttendeeUserDao convert(MeetingAttendeeUserInput input) {
+    private static MeetingAttendeeUserDao convert(MeetingInput.AttendeeUser input) {
         return MeetingAttendeeUserDao.of(null, input.userId(), null);
     }
 
-    private static MeetingAttendeeBankerDao convert(MeetingAttendeeBankerInput input) {
+    private static MeetingAttendeeBankerDao convert(MeetingInput.AttendeeBanker input) {
         return MeetingAttendeeBankerDao.of(null, input.bankerId(), input.bankerName(), null);
     }
 

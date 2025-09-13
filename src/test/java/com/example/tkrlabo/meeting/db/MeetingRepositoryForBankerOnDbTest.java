@@ -17,7 +17,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.example.tkrlabo.meeting.db.callback.MeetingDaoCallback;
 import com.example.tkrlabo.meeting.domain.dto.MeetingInput;
-import com.example.tkrlabo.meeting.domain.entity.Meeting;
 
 import jakarta.validation.ConstraintViolationException;
 

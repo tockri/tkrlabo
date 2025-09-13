@@ -24,10 +24,18 @@ public class MeetingRepositoryForBankerOnDb implements MeetingRepositoryForBanke
     @Override
     public List<Meeting> findByBankerId(Long bankerId, LocalDate fromDate) {
         var fromDateTime = fromDate.atStartOfDay();
-        var meetings = meetingDaoRepository.findByBankerIdAndFromDate(bankerId, fromDateTime);
-        var meetingIds = meetings.stream().map(MeetingDao::getId).toList();
-        var attendeeBankers = meetingAttendeeBankerRepository.findByMeetingIds(meetingIds);
-        var attendeeUsers = meetingAttendeeUserRepository.findByMeetingIds(meetingIds);
+        var meetingIds = meetingAttendeeBankerRepository.findMeetingIdsByBankerId(bankerId);
+        if (meetingIds.isEmpty()) {
+            return List.of();
+        }
+        var meetings = java.util.stream.StreamSupport
+                .stream(meetingDaoRepository.findAllById(meetingIds).spliterator(), false)
+                .filter(m -> !m.getCreatedAt().isBefore(fromDateTime))
+                .toList();
+        var attendeeBankers = meetingIds.isEmpty() ? List.<MeetingAttendeeBankerDao>of()
+                : meetingAttendeeBankerRepository.findByMeetingIds(meetingIds);
+        var attendeeUsers = meetingIds.isEmpty() ? List.<MeetingAttendeeUserDao>of()
+                : meetingAttendeeUserRepository.findByMeetingIds(meetingIds);
         return DaoConverter.convertList(meetings, attendeeBankers, attendeeUsers);
     }
 

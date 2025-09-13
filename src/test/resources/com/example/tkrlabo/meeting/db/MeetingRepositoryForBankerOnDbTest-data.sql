@@ -1,4 +1,10 @@
 -- テストデータの準備
+-- クリーンアップ（テスト毎に実行されるため重複回避）
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE meeting_attendee_user;
+TRUNCATE TABLE meeting_attendee_banker;
+TRUNCATE TABLE meeting;
+SET FOREIGN_KEY_CHECKS = 1;
 -- Meeting 1: 参加者1名ずつ (user: 100, banker: 1001)
 INSERT INTO meeting (
         id,
@@ -9,7 +15,7 @@ INSERT INTO meeting (
         updated_at
     )
 VALUES (
-        1,
+        10001,
         'event-1',
         'Meeting 1',
         'creator1',
@@ -27,7 +33,7 @@ INSERT INTO meeting (
         updated_at
     )
 VALUES (
-        2,
+        10002,
         'event-2',
         'Meeting 2',
         'creator2',
@@ -37,14 +43,14 @@ VALUES (
 --
 -- Meeting 1の参加者
 INSERT INTO meeting_attendee_user (user_id, meeting_id)
-VALUES (100, 1);
+VALUES (100, 10001);
 INSERT INTO meeting_attendee_banker (banker_id, banker_name, meeting_id)
-VALUES (1001, 'Banker A', 1);
+VALUES (1001, 'Banker A', 10001);
 --
 -- Meeting 2の参加者
 INSERT INTO meeting_attendee_user (user_id, meeting_id)
-VALUES (101, 2),
-    (102, 2);
+VALUES (101, 10002),
+    (102, 10002);
 INSERT INTO meeting_attendee_banker (banker_id, banker_name, meeting_id)
-VALUES (1001, 'Banker A', 2),
-    (1002, 'Banker C', 2);
+VALUES (1001, 'Banker A', 10002),
+    (1002, 'Banker C', 10002);

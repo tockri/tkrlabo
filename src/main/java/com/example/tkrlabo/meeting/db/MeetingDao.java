@@ -1,8 +1,10 @@
 package com.example.tkrlabo.meeting.db;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 import lombok.AllArgsConstructor;
@@ -10,17 +12,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Entity
 @Table(name = "meeting")
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 public class MeetingDao {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NonNull
-    @Column(name = "ms_event_id")
+    @Column("ms_event_id")
     private String msEventId;
 
     @NonNull
@@ -30,10 +30,10 @@ public class MeetingDao {
     private String creator;
 
     @NonNull
-    @Column(name = "created_at")
+    @Column("created_at")
     private LocalDateTime createdAt;
 
     @NonNull
-    @Column(name = "updated_at")
+    @Column("updated_at")
     private LocalDateTime updatedAt;
 }

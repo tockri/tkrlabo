@@ -26,10 +26,8 @@ public class MeetingRepositoryForBankerOnDb implements MeetingRepositoryForBanke
         var fromDateTime = fromDate.atStartOfDay();
         var meetings = meetingDaoRepository.findByBankerIdAndFromDate(bankerId, fromDateTime);
         var meetingIds = meetings.stream().map(MeetingDao::getId).toList();
-        var attendeeBankers = meetingIds.isEmpty() ? List.<MeetingAttendeeBankerDao>of()
-                : meetingAttendeeBankerRepository.findByMeetingIds(meetingIds);
-        var attendeeUsers = meetingIds.isEmpty() ? List.<MeetingAttendeeUserDao>of()
-                : meetingAttendeeUserRepository.findByMeetingIds(meetingIds);
+        var attendeeBankers = meetingAttendeeBankerRepository.findByMeetingIds(meetingIds);
+        var attendeeUsers = meetingAttendeeUserRepository.findByMeetingIds(meetingIds);
         return DaoConverter.convertList(meetings, attendeeBankers, attendeeUsers);
     }
 

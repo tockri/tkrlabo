@@ -12,7 +12,4 @@ interface MeetingAttendeeBankerDaoRepository extends CrudRepository<MeetingAtten
 
     @Query("SELECT ab.* FROM meeting_attendee_banker ab WHERE ab.meeting_id IN (:meetingIds)")
     List<MeetingAttendeeBankerDao> findByMeetingIds(Collection<Long> meetingIds);
-
-    @Query("SELECT DISTINCT ab.meeting_id FROM meeting_attendee_banker ab WHERE ab.banker_id = :bankerId")
-    List<Long> findMeetingIdsByBankerId(Long bankerId);
 }

@@ -1,6 +1,7 @@
 package com.example.tkrlabo.meeting.db;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -25,6 +26,9 @@ public class MeetingRepositoryForBankerOnDb implements MeetingRepositoryForBanke
     public List<Meeting> findByBankerId(Long bankerId, LocalDate fromDate) {
         var fromDateTime = fromDate.atStartOfDay();
         var meetings = meetingDaoRepository.findByBankerIdAndFromDate(bankerId, fromDateTime);
+        if (meetings.isEmpty()) {
+            return Collections.emptyList();
+        }
         var meetingIds = meetings.stream().map(MeetingDao::getId).toList();
         var attendeeBankers = meetingAttendeeBankerRepository.findByMeetingIds(meetingIds);
         var attendeeUsers = meetingAttendeeUserRepository.findByMeetingIds(meetingIds);

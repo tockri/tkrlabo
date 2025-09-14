@@ -11,12 +11,5 @@ import org.springframework.stereotype.Repository;
 interface MeetingAttendeeBankerDaoRepository extends CrudRepository<MeetingAttendeeBankerDao, Long> {
 
     @Query("SELECT ab.* FROM meeting_attendee_banker ab WHERE ab.meeting_id IN (:meetingIds)")
-    List<MeetingAttendeeBankerDao> findByMeetingIdsInternal(Collection<Long> meetingIds);
-
-    default List<MeetingAttendeeBankerDao> findByMeetingIds(Collection<Long> meetingIds) {
-        if (meetingIds == null || meetingIds.isEmpty()) {
-            return List.of();
-        }
-        return findByMeetingIdsInternal(meetingIds);
-    }
+    List<MeetingAttendeeBankerDao> findByMeetingIds(Collection<Long> meetingIds);
 }

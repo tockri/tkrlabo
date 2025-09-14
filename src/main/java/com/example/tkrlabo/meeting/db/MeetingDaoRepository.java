@@ -19,6 +19,7 @@ interface MeetingDaoRepository extends CrudRepository<MeetingDao, Long> {
                 WHERE ab.banker_id = :bankerId
             )
             AND m.created_at >= :fromDate
+            ORDER BY m.created_at DESC
             """)
     List<MeetingDao> findByBankerIdAndFromDate(Long bankerId, LocalDateTime fromDate);
 }

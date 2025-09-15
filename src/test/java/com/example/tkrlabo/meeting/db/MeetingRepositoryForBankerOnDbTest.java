@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.jdbc.Sql;
@@ -34,8 +36,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Rollback
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({
-        MeetingRepositoryForBankerOnDb.class,
         ValidationAutoConfiguration.class,
+        MeetingRepositoryForBankerOnDb.class,
         MeetingDaoCallback.class
 })
 @Sql(scripts = { "MeetingRepositoryForBankerOnDbTest-data.sql" })
